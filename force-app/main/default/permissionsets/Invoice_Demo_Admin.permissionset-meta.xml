@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Full access to Invoice Demo custom objects and fields</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>Invoice Demo Admin</label>
+
+    <!-- Tab Settings -->
+    <tabSettings>
+        <tab>Customer__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Charge__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Invoice__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+
+    <!-- Customer Object Permissions -->
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>true</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>true</modifyAllRecords>
+        <object>Customer__c</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+
+    <!-- Charge Object Permissions -->
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>true</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>true</modifyAllRecords>
+        <object>Charge__c</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+
+    <!-- Invoice Object Permissions -->
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>true</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>true</modifyAllRecords>
+        <object>Invoice__c</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+
+    <!-- Customer Field Permissions -->
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Customer__c.Billing_Street__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Customer__c.Billing_City__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Customer__c.Billing_State__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Customer__c.Billing_Zip__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Customer__c.Customer_Number__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+
+    <!-- Charge Field Permissions -->
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Charge__c.Customer__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Charge__c.Description__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Charge__c.Amount__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Charge__c.Charge_Date__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Charge__c.Invoice__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+
+    <!-- Invoice Field Permissions -->
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Invoice__c.Customer__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Invoice__c.Invoice_Date__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Invoice__c.Due_Date__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Invoice__c.Total_Amount__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Invoice__c.Scanline__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Invoice__c.PDF_ContentVersion_Id__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+</PermissionSet>

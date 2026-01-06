@@ -1,0 +1,282 @@
+<apex:page controller="InvoiceTemplateController" renderAs="pdf" showHeader="false" sidebar="false" standardStylesheets="false">
+    <head>
+        <style>
+            @page {
+                size: letter;
+                margin: 0.4in;
+            }
+            body {
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: 10pt;
+                color: #333;
+            }
+            table {
+                border-collapse: collapse;
+            }
+            .header-table {
+                width: 100%;
+                margin-bottom: 30px;
+                border-bottom: 3px solid #0066cc;
+                padding-bottom: 10px;
+            }
+            .company-name {
+                font-size: 20pt;
+                font-weight: bold;
+                color: #0066cc;
+                text-align: center;
+            }
+            .company-address {
+                font-size: 9pt;
+                color: #666;
+                text-align: center;
+                padding-top: 5px;
+            }
+            .invoice-title {
+                font-size: 18pt;
+                font-weight: bold;
+                margin: 20px 0;
+                color: #0066cc;
+            }
+            .info-table {
+                width: 100%;
+                margin-bottom: 25px;
+            }
+            .info-table td {
+                padding: 4px 8px;
+                vertical-align: top;
+            }
+            .info-label {
+                font-weight: bold;
+                width: 25%;
+            }
+            .info-value {
+                width: 25%;
+            }
+            .bill-to-box {
+                border: 2px solid #0066cc;
+                padding: 12px;
+                margin-bottom: 25px;
+                background-color: #f8f8f8;
+            }
+            .bill-to-title {
+                font-weight: bold;
+                font-size: 11pt;
+                margin-bottom: 8px;
+                color: #0066cc;
+            }
+            .charges-table {
+                width: 100%;
+                margin-bottom: 10px;
+                margin-top: 10px;
+                border: 1px solid #ccc;
+            }
+            .charges-table th {
+                background-color: #0066cc;
+                color: white;
+                padding: 10px;
+                text-align: left;
+                font-weight: bold;
+                border: 1px solid #0066cc;
+            }
+            .charges-table td {
+                padding: 8px 10px;
+                border-bottom: 1px solid #ddd;
+                border-left: 1px solid #ddd;
+                border-right: 1px solid #ddd;
+            }
+            .charges-table .amount-col {
+                text-align: right;
+                width: 20%;
+            }
+            .charges-table .date-col {
+                width: 15%;
+            }
+            .total-table {
+                width: 100%;
+                margin-top: 15px;
+                margin-bottom: 30px;
+            }
+            .total-spacer {
+                width: 60%;
+            }
+            .total-labels {
+                width: 20%;
+                text-align: right;
+                padding-right: 10px;
+            }
+            .total-amounts {
+                width: 20%;
+                text-align: right;
+            }
+            .grand-total-row {
+                border-top: 2px solid #333;
+                padding-top: 8px;
+                font-weight: bold;
+                font-size: 12pt;
+            }
+            .content-wrapper {
+                min-height: 8.5in;
+                position: relative;
+            }
+            .payment-coupon {
+                border-top: 2px dashed #999;
+                padding-top: 25px;
+                margin-top: 60px;
+                page-break-inside: avoid;
+            }
+            .coupon-title {
+                font-weight: bold;
+                font-size: 10pt;
+                margin-bottom: 15px;
+                text-align: center;
+                letter-spacing: 1px;
+            }
+            .coupon-info-table {
+                width: 100%;
+                margin-bottom: 15px;
+            }
+            .coupon-info-table td {
+                padding: 8px;
+                vertical-align: top;
+            }
+            .scanline-section {
+                margin: 25px 0 15px 0;
+                padding: 20px 15px;
+                background-color: #f5f5f5;
+                text-align: center;
+                border: 1px solid #ddd;
+            }
+            .scanline-instruction {
+                font-size: 8pt;
+                margin-bottom: 12px;
+                color: #666;
+            }
+            .footer {
+                margin-top: 30px;
+                text-align: center;
+                font-size: 9pt;
+                color: #666;
+                border-top: 1px solid #ddd;
+                padding-top: 10px;
+            }
+        </style>
+    </head>
+
+    <!-- Header -->
+    <table class="header-table" style="margin-bottom: 20px;">
+        <tr>
+            <td style="padding: 15px; text-align: center;">
+                <div class="company-name" style="font-size: 20pt; font-weight: bold; margin-bottom: 8px;">KYLE MOYNIHAN, INC.</div>
+                <div class="company-address" style="font-size: 9pt;">
+                    123 Portfolio Drive, Suite 100<br/>
+                    San Francisco, CA 94102<br/>
+                    Phone: (555) 123-4567 | Email: billing@kylemoynihan.com
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <div class="invoice-title" style="font-size: 18pt; font-weight: bold; margin-top: 18px; margin-bottom: 18px;">INVOICE</div>
+
+    <!-- Invoice Info -->
+    <table class="info-table" style="width: 100%; margin-bottom: 18px;">
+        <tr>
+            <td class="info-label" style="padding: 5px 10px; font-weight: bold;">Invoice Number:</td>
+            <td class="info-value" style="padding: 5px 10px;">{!invoice.Name}</td>
+            <td class="info-label" style="padding: 5px 10px; font-weight: bold;">Invoice Date:</td>
+            <td class="info-value" style="padding: 5px 10px;"><apex:outputText value="{0,date,MM/dd/yyyy}"><apex:param value="{!invoice.Invoice_Date__c}" /></apex:outputText></td>
+        </tr>
+        <tr>
+            <td class="info-label" style="padding: 5px 10px; font-weight: bold;">Customer Number:</td>
+            <td class="info-value" style="padding: 5px 10px;">{!invoice.Customer__r.Customer_Number__c}</td>
+            <td class="info-label" style="padding: 5px 10px; font-weight: bold;">Due Date:</td>
+            <td class="info-value" style="padding: 5px 10px;"><apex:outputText value="{0,date,MM/dd/yyyy}"><apex:param value="{!invoice.Due_Date__c}" /></apex:outputText></td>
+        </tr>
+    </table>
+
+    <!-- Bill To -->
+    <div class="bill-to-box" style="padding: 15px; margin-bottom: 18px;">
+        <div class="bill-to-title" style="font-weight: bold; font-size: 11pt; margin-bottom: 10px;">Bill To:</div>
+        <div style="margin-bottom: 3px;">{!invoice.Customer__r.Name}</div>
+        <div style="margin-bottom: 3px;">{!invoice.Customer__r.Billing_Street__c}</div>
+        <div>{!invoice.Customer__r.Billing_City__c}, {!invoice.Customer__r.Billing_State__c} {!invoice.Customer__r.Billing_Zip__c}</div>
+    </div>
+
+    <!-- Charges Table -->
+    <table class="charges-table" style="width: 100%; margin-top: 15px; margin-bottom: 10px;">
+        <thead>
+            <tr>
+                <th class="date-col" style="padding: 8px; text-align: left; font-weight: bold;">Date</th>
+                <th style="padding: 8px; text-align: left; font-weight: bold;">Description</th>
+                <th class="amount-col" style="padding: 8px; text-align: right; font-weight: bold;">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            <apex:repeat value="{!charges}" var="charge">
+                <tr>
+                    <td class="date-col" style="padding: 6px 8px;"><apex:outputText value="{0,date,MM/dd/yyyy}"><apex:param value="{!charge.Charge_Date__c}" /></apex:outputText></td>
+                    <td style="padding: 6px 8px;">{!charge.Description__c}</td>
+                    <td class="amount-col" style="padding: 6px 8px; text-align: right;"><apex:outputText value="{0, number, $###,##0.00}"><apex:param value="{!charge.Amount__c}" /></apex:outputText></td>
+                </tr>
+            </apex:repeat>
+        </tbody>
+    </table>
+
+    <!-- Total Section -->
+    <table class="total-table" style="width: 100%; margin-top: 12px; margin-bottom: 18px;">
+        <tr>
+            <td class="total-spacer" style="width: 60%;"></td>
+            <td class="total-labels grand-total-row" style="padding: 10px; text-align: right; font-weight: bold; font-size: 12pt;">Total Amount Due:</td>
+            <td class="total-amounts grand-total-row" style="padding: 10px; text-align: right; font-weight: bold; font-size: 12pt;"><apex:outputText value="{0, number, $###,##0.00}"><apex:param value="{!invoice.Total_Amount__c}" /></apex:outputText></td>
+        </tr>
+    </table>
+
+    <!-- Payment Coupon -->
+    <div class="payment-coupon" style="margin-top: 30px; padding-top: 18px;">
+        <div class="coupon-title" style="font-weight: bold; font-size: 10pt; margin-bottom: 15px; text-align: center;">✂ PAYMENT COUPON - DETACH AND RETURN WITH PAYMENT ✂</div>
+
+        <table class="coupon-info-table" style="width: 100%; margin-bottom: 15px;">
+            <tr>
+                <td style="width:50%; padding: 12px;">
+                    <div style="margin-bottom: 5px;"><strong>Remit To:</strong></div>
+                    <div>Kyle Moynihan, Inc.</div>
+                    <div>PO Box 12345</div>
+                    <div>San Francisco, CA 94102</div>
+                </td>
+                <td style="width:50%; padding: 12px;">
+                    <table style="width: 100%;">
+                        <tr>
+                            <td style="padding: 3px 0;"><strong>Invoice #:</strong></td>
+                            <td style="padding: 3px 0; text-align: right;">{!invoice.Name}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 3px 0;"><strong>Customer #:</strong></td>
+                            <td style="padding: 3px 0; text-align: right;">{!invoice.Customer__r.Customer_Number__c}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 3px 0;"><strong>Amount Due:</strong></td>
+                            <td style="padding: 3px 0; text-align: right;"><apex:outputText value="{0, number, $###,##0.00}"><apex:param value="{!invoice.Total_Amount__c}" /></apex:outputText></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 3px 0;"><strong>Due Date:</strong></td>
+                            <td style="padding: 3px 0; text-align: right;"><apex:outputText value="{0,date,MM/dd/yyyy}"><apex:param value="{!invoice.Due_Date__c}" /></apex:outputText></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+
+        <div class="scanline-section" style="margin-top: 20px; margin-bottom: 12px; padding-top: 15px; padding-bottom: 15px; text-align: center;">
+            <div class="scanline-instruction" style="font-size: 8pt; margin-bottom: 12px;">Please ensure scanline is visible when mailing</div>
+            <apex:outputPanel rendered="{!NOT(ISBLANK(invoice.Scanline__c))}">
+                <c:OCRA_Scanline scanlineText="{!invoice.Scanline__c}"/>
+            </apex:outputPanel>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer" style="margin-top: 15px; padding-top: 10px; text-align: center; font-size: 9pt;">
+        Thank you for your business!<br/>
+        Questions? Contact us at billing@kylemoynihan.com or call (555) 123-4567
+    </div>
+</apex:page>

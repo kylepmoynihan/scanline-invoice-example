@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>Customer__c.Billing_Street__c</members>
+        <members>Customer__c.Billing_City__c</members>
+        <members>Customer__c.Billing_State__c</members>
+        <members>Customer__c.Billing_Zip__c</members>
+        <members>Customer__c.Customer_Number__c</members>
+        <members>Charge__c.Amount__c</members>
+        <members>Charge__c.Charge_Date__c</members>
+        <members>Charge__c.Customer__c</members>
+        <members>Charge__c.Description__c</members>
+        <members>Charge__c.Invoice__c</members>
+        <members>Invoice__c.Customer__c</members>
+        <members>Invoice__c.Due_Date__c</members>
+        <members>Invoice__c.Invoice_Date__c</members>
+        <members>Invoice__c.PDF_ContentVersion_Id__c</members>
+        <members>Invoice__c.Scanline__c</members>
+        <members>Invoice__c.Total_Amount__c</members>
+        <name>CustomField</name>
+    </types>
+    <version>64.0</version>
+</Package>

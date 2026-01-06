@@ -1,0 +1,11 @@
+<apex:component controller="OCRAScanlineController">
+    <apex:attribute name="scanlineText" description="The scanline text to render" type="String" required="true" assignTo="{!scanline}"/>
+
+    <apex:repeat value="{!chars}" var="c">
+        <img
+            src="{!URLFOR($Resource.OCRAGlyphs, c + '.png')}"
+            alt="{!c}"
+            style="height: 10.5pt; width: auto; vertical-align: middle; margin:0; padding:0;"
+        />
+    </apex:repeat>
+</apex:component>

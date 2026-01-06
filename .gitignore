@@ -1,0 +1,29 @@
+# Salesforce DX
+.sfdx/
+.localdevserver/
+.sf/
+
+# LWC
+**/__tests__/**
+**/.eslintrc.json
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Apex scripts (test files)
+*.apex
+!create-new-customer-and-charges.apex
+
+# Node
+node_modules/
+package-lock.json

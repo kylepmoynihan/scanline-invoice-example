@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>64.0</apiVersion>
+    <description>Autolaunched flow to generate an invoice for a customer from unbilled charges</description>
+    <label>Generate Customer Invoice</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>Flow</processType>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Get_Unbilled_Charges</targetReference>
+        </connector>
+    </start>
+    <status>Active</status>
+
+    <!-- INPUT VARIABLE: Customer Record ID -->
+    <variables>
+        <name>recordId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+
+    <!-- VARIABLE: Total Amount -->
+    <variables>
+        <name>varTotalAmount</name>
+        <dataType>Currency</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <scale>2</scale>
+        <value>
+            <numberValue>0.0</numberValue>
+        </value>
+    </variables>
+
+    <!-- VARIABLE: Created Invoice ID -->
+    <variables>
+        <name>varInvoiceId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+
+    <!-- GET: Query unbilled charges -->
+    <recordLookups>
+        <name>Get_Unbilled_Charges</name>
+        <label>Get Unbilled Charges</label>
+        <locationX>176</locationX>
+        <locationY>134</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Check_If_Charges_Exist</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Customer__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Invoice__c</field>
+            <operator>IsNull</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>Charge__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+
+    <!-- DECISION: Check if charges exist -->
+    <decisions>
+        <name>Check_If_Charges_Exist</name>
+        <label>Check If Charges Exist</label>
+        <locationX>176</locationX>
+        <locationY>242</locationY>
+        <defaultConnectorLabel>No Charges</defaultConnectorLabel>
+        <rules>
+            <name>Has_Charges</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_Unbilled_Charges</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Loop_Through_Charges</targetReference>
+            </connector>
+            <label>Has Charges</label>
+        </rules>
+    </decisions>
+
+    <!-- LOOP: Calculate total from charges -->
+    <loops>
+        <name>Loop_Through_Charges</name>
+        <label>Loop Through Charges</label>
+        <locationX>50</locationX>
+        <locationY>350</locationY>
+        <collectionReference>Get_Unbilled_Charges</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Add_Charge_Amount</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Create_Invoice</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+
+    <!-- ASSIGNMENT: Add charge amount to total -->
+    <assignments>
+        <name>Add_Charge_Amount</name>
+        <label>Add Charge Amount</label>
+        <locationX>264</locationX>
+        <locationY>458</locationY>
+        <assignmentItems>
+            <assignToReference>varTotalAmount</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>Loop_Through_Charges.Amount__c</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Through_Charges</targetReference>
+        </connector>
+    </assignments>
+
+    <!-- CREATE: Create Invoice record -->
+    <recordCreates>
+        <name>Create_Invoice</name>
+        <label>Create Invoice</label>
+        <locationX>50</locationX>
+        <locationY>566</locationY>
+        <assignRecordIdToReference>varInvoiceId</assignRecordIdToReference>
+        <connector>
+            <targetReference>Update_Charges_With_Invoice</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>Customer__c</field>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Due_Date__c</field>
+            <value>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Invoice_Date__c</field>
+            <value>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Total_Amount__c</field>
+            <value>
+                <elementReference>varTotalAmount</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Invoice__c</object>
+    </recordCreates>
+
+    <!-- UPDATE: Link charges to invoice -->
+    <recordUpdates>
+        <name>Update_Charges_With_Invoice</name>
+        <label>Update Charges With Invoice</label>
+        <locationX>50</locationX>
+        <locationY>674</locationY>
+        <connector>
+            <targetReference>Generate_PDF</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Customer__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Invoice__c</field>
+            <operator>IsNull</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Invoice__c</field>
+            <value>
+                <elementReference>varInvoiceId</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Charge__c</object>
+    </recordUpdates>
+
+    <!-- ACTION: Call InvoicePDFGenerator -->
+    <actionCalls>
+        <name>Generate_PDF</name>
+        <label>Generate PDF</label>
+        <locationX>50</locationX>
+        <locationY>782</locationY>
+        <actionName>InvoicePDFGenerator</actionName>
+        <actionType>apex</actionType>
+        <connector>
+            <targetReference>Success_Screen</targetReference>
+        </connector>
+        <flowTransactionModel>Automatic</flowTransactionModel>
+        <inputParameters>
+            <name>invoiceId</name>
+            <value>
+                <elementReference>varInvoiceId</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>InvoicePDFGenerator</nameSegment>
+        <versionSegment>1</versionSegment>
+    </actionCalls>
+
+    <!-- SCREEN: Success message -->
+    <screens>
+        <name>Success_Screen</name>
+        <label>Invoice Created</label>
+        <locationX>50</locationX>
+        <locationY>890</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>SuccessMessage</name>
+            <fieldText>&lt;p&gt;&lt;b style=&quot;font-size: 14px; color: rgb(11, 130, 15);&quot;&gt;Invoice Created Successfully!&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;Invoice has been generated with all unbilled charges and the PDF has been attached to the invoice record.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+</Flow>
