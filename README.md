@@ -10,7 +10,13 @@ All names, numbers, and records in this repository are synthetic.
 
 **After:** every invoice carries a scanline that identifies the customer and the amount due. Insureds send payment directly to the bank. The bank's lockbox equipment reads the scanline, deposits the check, and returns a payment file that is loaded into Salesforce, so payments are matched to the right account without anyone handling a check or retyping a number.
 
-This repository covers the invoice side of that loop: collecting unbilled charges, creating the invoice, generating the scanline, and rendering the PDF. Processing the bank's return file is a separate component and is not included here.
+This repository contains the invoice side of that loop: collecting unbilled charges, creating the invoice, generating the scanline, and rendering the PDF. The bank's return file is processed by a separate component, described in [What comes back from the bank](#what-comes-back-from-the-bank) but not included as code.
+
+### The payment coupon
+
+The tear-off coupon from a production invoice. The account number is an internal Salesforce ID, and the scanline at the bottom is assembled from OCR-A glyph images (see below). The production scanline layout differs slightly from this demo's format.
+
+![Payment coupon with OCR-A scanline](docs/payment-coupon.png)
 
 ## How the automation works
 
@@ -66,6 +72,35 @@ Lockbox readers expect the OCR-A typeface, with exact character shapes and spaci
 - The `OCRA_Scanline` Visualforce component places the matching glyph image for each character at a fixed height with no padding, so the printed line keeps consistent character spacing for the bank's reader.
 
 The `OCRAFont` static resource (the TrueType font) is included for reference; the PDF uses the glyph images.
+
+## What comes back from the bank
+
+After the lockbox processes the day's payments, the bank sends a fixed-width text file back. A synthetic example (made-up values, simplified layout):
+
+```
+1 DEMOBANK 20261008 0615
+5 LOCKBOX 999999 BATCH 001
+6 001 0001 INV-00042 C-00005 000750000 CHK 001042
+6 001 0002 INV-00043 C-00011 000125050 CHK 000318
+7 001 0002 000875050
+9 0002 000875050
+```
+
+| First character | Line type | Contents |
+|---|---|---|
+| `1` | File header | Sending bank, date, time |
+| `5` | Batch header | Lockbox and batch number |
+| `6` | Payment detail | Invoice number, customer number, amount, check number |
+| `7` | Batch trailer | Item count and batch total |
+| `9` | File trailer | Item count and file total |
+
+How Salesforce decodes it:
+
+1. The bank posts the file to a Salesforce REST endpoint, and the raw text is stored on a record.
+2. Each line becomes its own record, typed by its first character.
+3. Payment lines (type `6`) are matched to their invoice by invoice number. Amounts use an implied decimal, so `000750000` becomes $7,500.00.
+4. A trigger hands matched payments to asynchronous Apex, which creates the cash receipts against the invoice.
+5. The trailer lines (types `7` and `9`) carry counts and totals for checking the batch.
 
 ## Components
 
